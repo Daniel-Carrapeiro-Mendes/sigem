@@ -11,14 +11,16 @@ e ainda vazias. O escopo é o MVP definido na Seção 4 do TCC: RF01 a RF08.
 | Arquivo | O que faz | Quem chama |
 |---|---|---|
 | `frontend/index.html` | Página inicial: menu de navegação e o cartão de diagnóstico do ambiente. | O navegador (aberto à mão ou pelo Live Server). |
+| `frontend/alunos.html` | Tela de alunos: formulário que serve para cadastrar e editar, e tabela da listagem. | O navegador, pelo menu. |
+| `frontend/js/alunos.js` | Chama a API de alunos e monta a tabela; monta as células com `textContent` para não executar HTML vindo do banco. | `alunos.html`. |
 | `frontend/css/style.css` | Estilo de **todas** as telas. Classes genéricas (`.cartao`, `.campo`, `.tabela-wrapper`, `.mensagem`) para que ninguém precise escrever CSS solto por tela. | Todas as páginas, via `<link>`. |
 | `frontend/js/main.js` | Faz `fetch` na API e escreve o resultado na tela; a URL do backend está fixa na constante `API_URL`. | `index.html`, via `<script>`. |
 | `backend/package.json` | Declara as dependências e os scripts `dev` (nodemon) e `start`. | O `npm`. |
 | `backend/.env.example` | Modelo das variáveis de ambiente, sem valores reais. | Copiado à mão para `.env`. |
 | `backend/src/server.js` | Cria o app Express, liga `cors` e `express.json`, registra os routers sob `/api` e sobe o servidor na porta do `.env`. | `npm run dev` / `npm start`. |
 | `backend/src/routes/health.routes.js` | Duas rotas de diagnóstico: `/api/health` (API viva) e `/api/health/db` (banco responde). | `server.js`, via `app.use('/api', ...)`. |
-| `backend/src/routes/aluno.routes.js` | Rotas de `/api/alunos` (RF01). Ainda vazio. | `server.js`. |
-| `backend/src/controllers/aluno.controller.js` | Lógica do cadastro de alunos (RF01). Ainda vazio. | `aluno.routes.js`. |
+| `backend/src/routes/aluno.routes.js` | Liga os cinco caminhos de `/api/alunos` (RF01) às funções do controller. | `server.js`. |
+| `backend/src/controllers/aluno.controller.js` | CRUD de alunos (RF01): grava em `usuario` + `aluno` numa transação, faz o hash da senha e exclui de forma lógica. | `aluno.routes.js`. |
 | `backend/src/routes/professor.routes.js` | Rotas de `/api/professores` (RF02). Ainda vazio. | `server.js`. |
 | `backend/src/controllers/professor.controller.js` | Lógica do cadastro de professores (RF02). Ainda vazio. | `professor.routes.js`. |
 | `backend/src/config/db.js` | Cria o pool de conexões do PostgreSQL a partir do `.env` e exporta ele pronto para uso. | Qualquer arquivo que precise consultar o banco; hoje só o `health.routes.js`. |

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alunos - SIGEM</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>SIGEM</h1>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="alunos.html" class="ativo">Alunos</a>
+      <a href="professores.html">Professores</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Alunos</h2>
+
+    <section class="cartao">
+      <h3 id="titulo-formulario">Cadastrar aluno</h3>
+      <form id="formulario-aluno">
+        <!-- Guarda o id quando o formulario esta editando. Vazio = cadastro novo. -->
+        <input type="hidden" id="aluno-id">
+
+        <div class="campo">
+          <label for="nome">Nome</label>
+          <input type="text" id="nome" required>
+        </div>
+
+        <div class="campo">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" required>
+        </div>
+
+        <!-- A senha so aparece no cadastro. Trocar senha e assunto do RF06. -->
+        <div class="campo" id="campo-senha">
+          <label for="senha">Senha inicial</label>
+          <input type="password" id="senha" required>
+        </div>
+
+        <div class="campo">
+          <label for="data-nascimento">Data de nascimento</label>
+          <input type="date" id="data-nascimento">
+        </div>
+
+        <button type="submit" id="botao-salvar">Salvar</button>
+        <button type="button" id="botao-cancelar" class="secundario" hidden>Cancelar</button>
+      </form>
+      <p id="mensagem" class="mensagem"></p>
+    </section>
+
+    <div class="tabela-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>E-mail</th>
+            <th>Nascimento</th>
+            <th>Acoes</th>
+          </tr>
+        </thead>
+        <tbody id="corpo-tabela"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="js/alunos.js"></script>
+</body>
+</html>
