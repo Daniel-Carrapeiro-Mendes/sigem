@@ -3,23 +3,27 @@
 Sistema web de gestão para escolas de música. TCC de Anita Felício dos Santos e
 Daniel Carrapeiro Mendes — Fatec Ourinhos, ADS.
 
-Estado atual: esqueleto validado. Só a rota de health check existe. O escopo é o
-MVP definido na Seção 4 do TCC: RF01 a RF08.
+Estado atual: schema aplicado no banco, rotas de alunos e professores registradas
+e ainda vazias. O escopo é o MVP definido na Seção 4 do TCC: RF01 a RF08.
 
 ## Arquivos, na ordem em que o código executa
 
 | Arquivo | O que faz | Quem chama |
 |---|---|---|
-| `frontend/index.html` | Página única com o botão de teste; carrega o CSS e o JS. | O navegador (aberto à mão ou pelo Live Server). |
-| `frontend/css/style.css` | Estilo da página: paleta escura no cabeçalho e botão. | `index.html`, via `<link>`. |
+| `frontend/index.html` | Página inicial: menu de navegação e o cartão de diagnóstico do ambiente. | O navegador (aberto à mão ou pelo Live Server). |
+| `frontend/css/style.css` | Estilo de **todas** as telas. Classes genéricas (`.cartao`, `.campo`, `.tabela-wrapper`, `.mensagem`) para que ninguém precise escrever CSS solto por tela. | Todas as páginas, via `<link>`. |
 | `frontend/js/main.js` | Faz `fetch` na API e escreve o resultado na tela; a URL do backend está fixa na constante `API_URL`. | `index.html`, via `<script>`. |
 | `backend/package.json` | Declara as dependências e os scripts `dev` (nodemon) e `start`. | O `npm`. |
 | `backend/.env.example` | Modelo das variáveis de ambiente, sem valores reais. | Copiado à mão para `.env`. |
 | `backend/src/server.js` | Cria o app Express, liga `cors` e `express.json`, registra os routers sob `/api` e sobe o servidor na porta do `.env`. | `npm run dev` / `npm start`. |
 | `backend/src/routes/health.routes.js` | Duas rotas de diagnóstico: `/api/health` (API viva) e `/api/health/db` (banco responde). | `server.js`, via `app.use('/api', ...)`. |
+| `backend/src/routes/aluno.routes.js` | Rotas de `/api/alunos` (RF01). Ainda vazio. | `server.js`. |
+| `backend/src/controllers/aluno.controller.js` | Lógica do cadastro de alunos (RF01). Ainda vazio. | `aluno.routes.js`. |
+| `backend/src/routes/professor.routes.js` | Rotas de `/api/professores` (RF02). Ainda vazio. | `server.js`. |
+| `backend/src/controllers/professor.controller.js` | Lógica do cadastro de professores (RF02). Ainda vazio. | `professor.routes.js`. |
 | `backend/src/config/db.js` | Cria o pool de conexões do PostgreSQL a partir do `.env` e exporta ele pronto para uso. | Qualquer arquivo que precise consultar o banco; hoje só o `health.routes.js`. |
-| `backend/src/config/schema.sql` | Script de criação das nove tabelas do sistema. | Ninguém, no código. É rodado à mão no pgAdmin4. |
-| `backend/src/controllers/` | Pasta vazia. É onde a lógica de cada funcionalidade vai morar. | Será chamada pelos arquivos de `routes/`. |
+| `backend/src/config/schema.sql` | Script de criação das nove tabelas. Só `CREATE`, nunca `DROP`. | Ninguém, no código. Rodado à mão com `psql -f`. |
+
 
 ## Como as peças se conectam
 
@@ -92,21 +96,23 @@ decidir o que cada perfil pode ver. Mas ele não precisa vir primeiro no
 desenvolvimento — dá para construir os CRUDs abertos e proteger as rotas depois,
 o que costuma ser mais fácil de dividir entre duas pessoas.
 
-## Pendências de modelagem
+## Decisões de modelagem que já estão no schema
 
-O `schema.sql` foi escrito antes da versão final dos requisitos. Três pontos ainda
-não batem com o que o TCC pede:
+Três pontos foram corrigidos antes da primeira execução do `schema.sql`, enquanto
+o banco ainda estava vazio e a mudança era gratuita:
 
-1. **Horário como texto.** `turma.horario` e `aula.horario` são `VARCHAR`. RF04
-   pede agendamento; com texto livre não é possível ordenar por horário nem
-   detectar duas aulas marcadas no mesmo momento para o mesmo professor.
-2. **`arquivo` só aponta para turma.** RF07 fala em vincular arquivo a turma *ou
-   aluno* e RF08 em áudio enviado pelo aluno. Falta uma referência opcional a
-   `aluno`.
-3. **Exclusão.** RF01 e RF02 pedem excluir aluno e professor, mas as chaves
-   estrangeiras de `matricula` e `frequencia` bloqueiam o `DELETE` de quem já tem
-   histórico. O caminho normal é exclusão lógica: uma coluna `ativo BOOLEAN` que
-   esconde o registro sem apagar o histórico.
+1. **Exclusão é lógica.** `usuario.ativo` existe porque RF01 e RF02 pedem excluir
+   aluno e professor, mas as chaves estrangeiras de `matricula` e `frequencia`
+   bloqueiam o `DELETE` de quem tem histórico. Excluir vira
+   `UPDATE usuario SET ativo = false`, e toda listagem filtra por `ativo = true`.
+   O controle mora só em `usuario` — `aluno` e `professor` não repetem a coluna.
+2. **Horário é coluna tipada, não texto.** `turma` guarda `dia_semana` +
+   `hora_inicio` + `hora_fim`; `aula` guarda `data` + `hora_inicio` + `hora_fim`.
+   Com `VARCHAR` seria impossível ordenar por horário ou descobrir que o mesmo
+   professor foi marcado em duas aulas ao mesmo tempo, que é o coração do RF04.
+3. **`arquivo` aponta para turma e para aluno**, ambos opcionais. RF07 vincula o
+   arquivo do professor a uma turma *ou* a um aluno; RF08 é áudio do próprio
+   aluno. `nome_original` existe para o download sair com nome legível.
 
 ## Fora do escopo
 

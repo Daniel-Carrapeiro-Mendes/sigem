@@ -3,6 +3,8 @@ const cors = require('cors');
 require('dotenv').config();
 
 const healthRoutes = require('./routes/health.routes');
+const alunoRoutes = require('./routes/aluno.routes');
+const professorRoutes = require('./routes/professor.routes');
 
 const app = express();
 
@@ -11,11 +13,11 @@ app.use(cors());
 app.use(express.json());
 
 // Rotas
+// Registradas todas de uma vez no inicio do sprint: assim quem implementa alunos
+// e quem implementa professores nunca precisa editar este arquivo ao mesmo tempo.
 app.use('/api', healthRoutes);
-
-// Quando comecarem a implementar RF01 a RF08, as novas rotas entram aqui, por exemplo:
-// const alunoRoutes = require('./routes/aluno.routes');
-// app.use('/api/alunos', alunoRoutes);
+app.use('/api/alunos', alunoRoutes);
+app.use('/api/professores', professorRoutes);
 
 const PORT = process.env.PORT || 3000;
 
