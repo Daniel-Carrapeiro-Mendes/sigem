@@ -7,6 +7,7 @@
 
 const bcrypt = require('bcrypt');
 const pool = require('../config/db');
+const { validarCadastro } = require('../utils/validacao');
 
 // Custo do hash: quantas rodadas de embaralhamento o bcrypt aplica na senha.
 // 10 e o padrao recomendado - alto o bastante para atrapalhar quem tenta
@@ -26,6 +27,20 @@ const COLUNAS = `
 
 // Codigo do PostgreSQL para violacao de restricao UNIQUE (email repetido).
 const EMAIL_DUPLICADO = '23505';
+
+// O email fica reservado mesmo depois da exclusao logica: a linha continua no
+// banco, entao o UNIQUE continua valendo. Sem esta mensagem, quem cadastra ve
+// "ja existe" com a lista de alunos vazia na frente e nao entende o motivo.
+async function mensagemDeEmailDuplicado(email) {
+  const existente = await pool.query(
+    'SELECT ativo FROM usuario WHERE email = $1',
+    [email.trim().toLowerCase()]
+  );
+  if (existente.rows.length > 0 && existente.rows[0].ativo === false) {
+    return 'Esse e-mail pertence a um cadastro que foi excluido. Escolha outro e-mail.';
+  }
+  return 'Ja existe um usuario com esse email';
+}
 
 function erro(res, status, message, detalhe) {
   return res.status(status).json({ status: 'erro', message, detalhe });
@@ -70,13 +85,23 @@ async function buscarPorId(req, res) {
 async function criar(req, res) {
   const { nome, email, senha, data_nascimento } = req.body;
 
-  if (!nome || !email || !senha) {
-    return erro(res, 400, 'Nome, email e senha sao obrigatorios');
+  // Validado aqui, no servidor, e nao so no formulario: o HTML impede o usuario
+  // comum de errar, mas nao impede uma requisicao mandada direto na API.
+  const problemas = validarCadastro(
+    { nome, email, senha, dataNascimento: data_nascimento }
+  );
+  if (problemas.length > 0) {
+    return erro(res, 400, problemas[0], problemas.join(' | '));
   }
 
   // client() em vez de pool.query() porque BEGIN/COMMIT precisam rodar todos na
   // MESMA conexao. Com pool.query() cada comando poderia pegar uma conexao
   // diferente e a transacao nao valeria de nada.
+  // Normaliza uma vez so e usa o mesmo valor no INSERT e na resposta, senao a
+  // API devolve um dado diferente do que foi gravado.
+  const nomeLimpo = nome.trim();
+  const emailLimpo = email.trim().toLowerCase();
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -86,7 +111,7 @@ async function criar(req, res) {
       INSERT INTO usuario (nome, email, senha_hash, perfil)
       VALUES ($1, $2, $3, 'aluno')
       RETURNING id
-    `, [nome, email, senhaHash]);
+    `, [nomeLimpo, emailLimpo, senhaHash]);
 
     const aluno = await client.query(`
       INSERT INTO aluno (usuario_id, data_nascimento)
@@ -97,12 +122,12 @@ async function criar(req, res) {
     await client.query('COMMIT');
     res.status(201).json({
       status: 'ok',
-      dados: { id: aluno.rows[0].id, nome, email, data_nascimento: data_nascimento || null }
+      dados: { id: aluno.rows[0].id, nome: nomeLimpo, email: emailLimpo, data_nascimento: data_nascimento || null }
     });
   } catch (e) {
     await client.query('ROLLBACK');
     if (e.code === EMAIL_DUPLICADO) {
-      return erro(res, 409, 'Ja existe um usuario com esse email');
+      return erro(res, 409, await mensagemDeEmailDuplicado(email));
     }
     erro(res, 500, 'Falha ao cadastrar o aluno', e.message);
   } finally {
@@ -115,9 +140,17 @@ async function criar(req, res) {
 async function atualizar(req, res) {
   const { nome, email, data_nascimento } = req.body;
 
-  if (!nome || !email) {
-    return erro(res, 400, 'Nome e email sao obrigatorios');
+  // exigirSenha: false porque a edicao nao mexe em senha - trocar senha e RF06.
+  const problemas = validarCadastro(
+    { nome, email, dataNascimento: data_nascimento },
+    { exigirSenha: false }
+  );
+  if (problemas.length > 0) {
+    return erro(res, 400, problemas[0], problemas.join(' | '));
   }
+
+  const nomeLimpo = nome.trim();
+  const emailLimpo = email.trim().toLowerCase();
 
   const client = await pool.connect();
   try {
@@ -129,7 +162,7 @@ async function atualizar(req, res) {
       UPDATE usuario SET nome = $1, email = $2
       WHERE id = (SELECT usuario_id FROM aluno WHERE id = $3) AND ativo = true
       RETURNING id
-    `, [nome, email, req.params.id]);
+    `, [nomeLimpo, emailLimpo, req.params.id]);
 
     if (usuario.rows.length === 0) {
       await client.query('ROLLBACK');
@@ -142,11 +175,11 @@ async function atualizar(req, res) {
     );
 
     await client.query('COMMIT');
-    res.json({ status: 'ok', dados: { id: Number(req.params.id), nome, email, data_nascimento: data_nascimento || null } });
+    res.json({ status: 'ok', dados: { id: Number(req.params.id), nome: nomeLimpo, email: emailLimpo, data_nascimento: data_nascimento || null } });
   } catch (e) {
     await client.query('ROLLBACK');
     if (e.code === EMAIL_DUPLICADO) {
-      return erro(res, 409, 'Ja existe um usuario com esse email');
+      return erro(res, 409, await mensagemDeEmailDuplicado(email));
     }
     erro(res, 500, 'Falha ao atualizar o aluno', e.message);
   } finally {

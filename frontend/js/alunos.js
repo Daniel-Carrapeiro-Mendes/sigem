@@ -12,7 +12,52 @@ const blocoSenha = document.getElementById('campo-senha');
 const tituloFormulario = document.getElementById('titulo-formulario');
 const botaoCancelar = document.getElementById('botao-cancelar');
 const corpoTabela = document.getElementById('corpo-tabela');
+const botaoVerSenha = document.getElementById('botao-ver-senha');
+const forcaSenha = document.getElementById('forca-senha');
 const mensagem = document.getElementById('mensagem');
+
+// A data de nascimento nao pode ser no futuro nem absurdamente antiga. Os
+// limites sao calculados a partir de hoje, entao ficam aqui e nao no HTML.
+// Isto e conforto para quem digita: quem valida de verdade e o backend.
+(function definirLimitesDeData() {
+  const hoje = new Date();
+  const maisAntiga = new Date();
+  maisAntiga.setFullYear(hoje.getFullYear() - 120);
+  campoNascimento.max = hoje.toISOString().slice(0, 10);
+  campoNascimento.min = maisAntiga.toISOString().slice(0, 10);
+})();
+
+// Mostrar/ocultar a senha. Trocar o type do input entre "password" e "text" e
+// tudo que e preciso - o valor digitado nao se perde na troca.
+botaoVerSenha.addEventListener('click', () => {
+  const escondida = campoSenha.type === 'password';
+  campoSenha.type = escondida ? 'text' : 'password';
+  botaoVerSenha.textContent = escondida ? 'Ocultar' : 'Mostrar';
+});
+
+// Indicador simples de forca: conta o tamanho e quantos tipos de caractere
+// diferentes aparecem. Nao e uma medida de seguranca, e uma dica visual - quem
+// recusa senha curta de verdade e a validacao do servidor.
+function avaliarSenha(senha) {
+  if (senha.length === 0) return { texto: 'Minimo de 8 caracteres.', classe: '' };
+  if (senha.length < 8) return { texto: 'Muito curta: minimo de 8 caracteres.', classe: 'fraca' };
+
+  const variedade =
+    (/[a-z]/.test(senha) ? 1 : 0) +
+    (/[A-Z]/.test(senha) ? 1 : 0) +
+    (/[0-9]/.test(senha) ? 1 : 0) +
+    (/[^a-zA-Z0-9]/.test(senha) ? 1 : 0);
+
+  if (variedade >= 3 && senha.length >= 12) return { texto: 'Senha forte.', classe: 'forte' };
+  if (variedade >= 2) return { texto: 'Senha media. Misture maiusculas, numeros e simbolos.', classe: 'media' };
+  return { texto: 'Senha fraca. Misture maiusculas, numeros e simbolos.', classe: 'fraca' };
+}
+
+campoSenha.addEventListener('input', () => {
+  const avaliacao = avaliarSenha(campoSenha.value);
+  forcaSenha.textContent = avaliacao.texto;
+  forcaSenha.className = 'ajuda ' + avaliacao.classe;
+});
 
 function mostrarMensagem(texto, tipo) {
   mensagem.textContent = texto;
@@ -90,6 +135,9 @@ function prepararEdicao(aluno) {
   // navegador bloqueia o envio de um campo obrigatorio que esta escondido.
   blocoSenha.hidden = true;
   campoSenha.required = false;
+  // volta a esconder o texto, caso o usuario tenha deixado "Mostrar" ligado
+  campoSenha.type = 'password';
+  botaoVerSenha.textContent = 'Mostrar';
 
   tituloFormulario.textContent = 'Editar aluno';
   botaoCancelar.hidden = false;
@@ -102,6 +150,10 @@ function limparFormulario() {
   campoId.value = '';
   blocoSenha.hidden = false;
   campoSenha.required = true;
+  campoSenha.type = 'password';
+  botaoVerSenha.textContent = 'Mostrar';
+  forcaSenha.textContent = 'Minimo de 8 caracteres.';
+  forcaSenha.className = 'ajuda';
   tituloFormulario.textContent = 'Cadastrar aluno';
   botaoCancelar.hidden = true;
 }

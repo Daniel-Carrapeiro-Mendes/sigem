@@ -90,6 +90,9 @@ Pontos que só se percebem lendo vários arquivos juntos:
   rotas de alunos e professores já foram registradas de antemão, de propósito:
   assim as duas pessoas da equipe nunca precisam editar o `server.js` ao mesmo
   tempo. Ao criar uma área nova, siga a mesma ideia.
+- **`backend/src/utils/validacao.js` guarda as regras de validação** de todos os
+  cadastros. Validação no navegador é conforto; a do servidor é a que vale, porque
+  um `curl` passa por cima do formulário. Nunca valide só no frontend.
 - **`frontend/css/style.css` é compartilhado por todas as telas** pelo mesmo
   motivo. Classes genéricas (`.cartao`, `.campo`, `.tabela-wrapper`, `.mensagem`)
   vivem lá; evite estilo solto dentro do HTML de uma tela.
@@ -136,6 +139,18 @@ preenche um ou outro, RF08 preenche `aluno_id`.
   com o HTTP status apropriado; sucesso usa `status: 'ok'`.
 - Tabelas do banco em singular e minúsculo (`usuario`, `turma`), colunas em
   snake_case.
+
+## Documentação que precisa ser mantida
+
+Além deste arquivo, dois documentos são atualizados **na mesma tarefa** em que o
+código muda:
+
+- **`ARQUITETURA.md`** — o que o sistema é: tabela de arquivos na ordem de
+  execução, caminho de uma requisição, decisões de estrutura.
+- **`GUIA-DA-BANCA.md`** — por que o sistema é assim, em formato de pergunta e
+  resposta. Toda decisão técnica não óbvia (escolha entre abordagens, contorno de
+  limitação, regra de validação, decisão de segurança) vira uma entrada lá.
+  Serve para o Daniel estudar e para defender o TCC.
 
 ## Requisitos (TG-SIGEM.pdf, Seção 4)
 

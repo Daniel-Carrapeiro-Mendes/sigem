@@ -23,6 +23,7 @@ e ainda vazias. O escopo é o MVP definido na Seção 4 do TCC: RF01 a RF08.
 | `backend/src/controllers/aluno.controller.js` | CRUD de alunos (RF01): grava em `usuario` + `aluno` numa transação, faz o hash da senha e exclui de forma lógica. | `aluno.routes.js`. |
 | `backend/src/routes/professor.routes.js` | Rotas de `/api/professores` (RF02). Ainda vazio. | `server.js`. |
 | `backend/src/controllers/professor.controller.js` | Lógica do cadastro de professores (RF02). Ainda vazio. | `professor.routes.js`. |
+| `backend/src/utils/validacao.js` | Regras de validação de nome, e-mail, senha e data, compartilhadas por todos os cadastros. Criado antes do desenvolvimento paralelo para não virar ponto de conflito. | Os controllers. |
 | `backend/src/config/db.js` | Cria o pool de conexões do PostgreSQL a partir do `.env` e exporta ele pronto para uso. | Qualquer arquivo que precise consultar o banco; hoje só o `health.routes.js`. |
 | `backend/src/config/schema.sql` | Script de criação das nove tabelas. Só `CREATE`, nunca `DROP`. | Ninguém, no código. Rodado à mão com `psql -f`. |
 

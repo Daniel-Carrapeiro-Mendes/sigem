@@ -100,6 +100,28 @@ main h2 {
   width: 100%;
 }
 
+/* Campo com um botao colado do lado, como o "mostrar senha" */
+.campo-com-botao {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.campo-com-botao input {
+  flex: 1;
+  /* min-width: 0 impede o input de estourar o flex no celular */
+  min-width: 0;
+}
+
+.ajuda {
+  margin-top: 0.3rem;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.ajuda.fraca  { color: #a33a3a; }
+.ajuda.media  { color: #9a6b00; }
+.ajuda.forte  { color: #1e7d34; }
+
 /* ---------- Botoes ---------- */
 
 button {
