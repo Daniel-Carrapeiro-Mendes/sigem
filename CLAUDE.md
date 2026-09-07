@@ -151,6 +151,12 @@ código muda:
   resposta. Toda decisão técnica não óbvia (escolha entre abordagens, contorno de
   limitação, regra de validação, decisão de segurança) vira uma entrada lá.
   Serve para o Daniel estudar e para defender o TCC.
+- **`ROADMAP.md`** — onde o projeto está e o que vem agora: a situação de cada
+  requisito, o mapa de dependências entre eles e quem pegou o quê. A tabela de
+  situação é atualizada assim que um requisito muda de estado.
+
+Antes de propor a próxima tarefa, leia o `ROADMAP.md`: a ordem dos requisitos não
+é livre, ela é imposta pelas chaves estrangeiras do schema.
 
 ## Requisitos (TG-SIGEM.pdf, Seção 4)
 
