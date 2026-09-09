@@ -6,6 +6,7 @@ require('dotenv').config();
 const healthRoutes = require('./routes/health.routes');
 const alunoRoutes = require('./routes/aluno.routes');
 const professorRoutes = require('./routes/professor.routes');
+const sistemaRoutes = require('./routes/sistema.routes');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use(express.static(path.join(__dirname, '../../frontend')));
 // Registradas todas de uma vez no inicio do sprint: assim quem implementa alunos
 // e quem implementa professores nunca precisa editar este arquivo ao mesmo tempo.
 app.use('/api', healthRoutes);
+app.use('/api', sistemaRoutes);
 app.use('/api/alunos', alunoRoutes);
 app.use('/api/professores', professorRoutes);
 

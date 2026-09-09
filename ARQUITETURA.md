@@ -26,6 +26,9 @@ e ainda vazias. O escopo é o MVP definido na Seção 4 do TCC: RF01 a RF08.
 | `backend/src/utils/validacao.js` | Regras de validação de nome, e-mail, senha e data, compartilhadas por todos os cadastros. Criado antes do desenvolvimento paralelo para não virar ponto de conflito. | Os controllers. |
 | `backend/src/config/db.js` | Cria o pool de conexões do PostgreSQL a partir do `.env` e exporta ele pronto para uso. | Qualquer arquivo que precise consultar o banco; hoje só o `health.routes.js`. |
 | `backend/src/config/schema.sql` | Script de criação das nove tabelas. Só `CREATE`, nunca `DROP`. | Ninguém, no código. Rodado à mão com `psql -f`. |
+| `backend/src/routes/sistema.routes.js` | `/api/versao` (lê `package.json`) e `/api/changelog` (lê `CHANGELOG.md`). Não pertence a nenhuma funcionalidade — é sobre o sistema em si. | `server.js`. |
+| `frontend/js/rodape.js` | Monta o rodapé com a versão em toda tela que o incluir, e o diálogo do changelog. Interpreta o pouco de markdown que o `CHANGELOG.md` usa, sem biblioteca. | `index.html` e `alunos.html`, via `<script>`. |
+| `CHANGELOG.md` | Histórico de versões, mais recente primeiro, formato Keep a Changelog. | `sistema.routes.js`, que lê o arquivo cru. |
 
 
 ## Como as peças se conectam
@@ -89,6 +92,18 @@ respondia "Cannot GET /". Servindo os dois do mesmo processo, um endereço só a
 o sistema inteiro. O `cors()` continua no código: ele segue necessário para o dia
 em que o frontend for aberto de outro endereço (por exemplo, publicado num
 serviço separado do backend).
+
+**A versão vem da API, não é escrita no HTML.** `package.json` é a única fonte:
+o rodapé busca `/api/versao`, que lê o `version` do arquivo. Se o número fosse
+digitado direto no HTML também, um dia os dois desencontrariam — é a mesma lógica
+de nunca duplicar a URL da API ou uma senha em dois lugares.
+
+**Changelog interpretado em JavaScript puro, sem biblioteca de markdown.**
+`frontend/js/rodape.js` entende só o suficiente do formato que o `CHANGELOG.md`
+usa (`##`, `###`, listas com `-`). Uma biblioteca de markdown resolveria mais
+casos, mas o projeto não tem nenhum outro texto em markdown para mostrar na tela,
+e RNF02 pede frontend sem framework nem dependência extra — o interpretador
+pequeno já resolve o problema real.
 
 ## O que cada requisito vai encostar
 

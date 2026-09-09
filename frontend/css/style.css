@@ -187,6 +187,75 @@ th {
 .mensagem.sucesso { color: #1e7d34; }
 .mensagem.erro    { color: #a33a3a; }
 
+/* ---------- Rodape e changelog ---------- */
+
+.rodape-sistema {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 1rem 2rem;
+}
+
+.versao-sistema {
+  background: none;
+  border: 1px solid #bbb;
+  color: #666;
+  font-size: 0.8rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.versao-sistema:hover:not(:disabled) {
+  background-color: #fff;
+  color: #2c3e50;
+}
+
+.versao-sistema:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* <dialog> e uma tag nativa do navegador: ja vem com o fundo escurecido
+   (::backdrop) e a centralizacao na tela, sem precisar de biblioteca. */
+.dialogo-changelog {
+  width: min(600px, 90vw);
+  max-height: 80vh;
+  border: none;
+  border-radius: 6px;
+  padding: 0;
+}
+
+.dialogo-changelog::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.dialogo-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e2e2e2;
+  position: sticky;
+  top: 0;
+  background-color: #fff;
+}
+
+.dialogo-cabecalho h2 {
+  font-size: 1.1rem;
+}
+
+.dialogo-corpo {
+  padding: 1.25rem;
+  overflow-y: auto;
+  max-height: calc(80vh - 4rem);
+}
+
+.dialogo-corpo h3 { font-size: 1rem; margin-top: 1.25rem; color: #2c3e50; }
+.dialogo-corpo h4 { font-size: 0.9rem; margin-top: 0.75rem; color: #555; }
+.dialogo-corpo p  { margin-top: 0.5rem; font-size: 0.9rem; color: #555; }
+.dialogo-corpo ul { margin-top: 0.4rem; padding-left: 1.2rem; }
+.dialogo-corpo li { font-size: 0.9rem; margin-top: 0.3rem; }
+
 /* ---------- Celular ---------- */
 
 @media (max-width: 600px) {

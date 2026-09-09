@@ -283,6 +283,27 @@ Segurança. Com `innerHTML`, um aluno cadastrado com `<script>` no nome teria es
 código executado no navegador de quem abrisse a listagem — um ataque de XSS
 (Cross-Site Scripting). `textContent` insere o valor como texto puro, sempre.
 
+### "Por que a versão do sistema não está escrita direto no HTML?"
+
+Porque `package.json` é a única fonte da verdade para a versão. O rodapé de cada
+tela busca o número numa rota da API (`/api/versao`), que lê o mesmo arquivo que
+o `npm` usa para publicar o projeto. Se o número também estivesse digitado no
+HTML, mais cedo ou tarde alguém atualizaria um lugar e esqueceria o outro — o
+mesmo risco de duplicar uma URL ou uma senha em dois arquivos.
+
+O changelog funciona pelo mesmo princípio: o botão da versão abre uma janela
+(a tag `<dialog>`, nativa do navegador) que busca `/api/changelog`, e essa rota
+lê o `CHANGELOG.md` do disco. O conteúdo existe em um arquivo só, lido por dois
+lugares diferentes (a documentação do projeto e a tela).
+
+### "Por que não usar uma biblioteca para interpretar o markdown do changelog?"
+
+O `frontend/js/rodape.js` tem um interpretador pequeno, escrito à mão, que só
+entende o que o `CHANGELOG.md` realmente usa: títulos (`##`, `###`) e listas
+(`- item`). Uma biblioteca pronta resolveria mais casos do que o projeto precisa,
+e o RNF02 pede frontend sem framework nem dependência extra. Trinta linhas que
+resolvem o problema real valem mais, aqui, do que uma biblioteca genérica.
+
 ---
 
 ## 6. Limitações assumidas
