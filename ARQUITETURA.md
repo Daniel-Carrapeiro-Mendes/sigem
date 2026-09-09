@@ -10,14 +10,14 @@ e ainda vazias. O escopo é o MVP definido na Seção 4 do TCC: RF01 a RF08.
 
 | Arquivo | O que faz | Quem chama |
 |---|---|---|
-| `frontend/index.html` | Página inicial: menu de navegação e o cartão de diagnóstico do ambiente. | O navegador (aberto à mão ou pelo Live Server). |
+| `frontend/index.html` | Página inicial: menu de navegação e o cartão de diagnóstico do ambiente. | O navegador, servido pelo próprio backend em `http://localhost:3000/`. |
 | `frontend/alunos.html` | Tela de alunos: formulário que serve para cadastrar e editar, e tabela da listagem. | O navegador, pelo menu. |
 | `frontend/js/alunos.js` | Chama a API de alunos e monta a tabela; monta as células com `textContent` para não executar HTML vindo do banco. | `alunos.html`. |
 | `frontend/css/style.css` | Estilo de **todas** as telas. Classes genéricas (`.cartao`, `.campo`, `.tabela-wrapper`, `.mensagem`) para que ninguém precise escrever CSS solto por tela. | Todas as páginas, via `<link>`. |
 | `frontend/js/main.js` | Faz `fetch` na API e escreve o resultado na tela; a URL do backend está fixa na constante `API_URL`. | `index.html`, via `<script>`. |
 | `backend/package.json` | Declara as dependências e os scripts `dev` (nodemon) e `start`. | O `npm`. |
 | `backend/.env.example` | Modelo das variáveis de ambiente, sem valores reais. | Copiado à mão para `.env`. |
-| `backend/src/server.js` | Cria o app Express, liga `cors` e `express.json`, registra os routers sob `/api` e sobe o servidor na porta do `.env`. | `npm run dev` / `npm start`. |
+| `backend/src/server.js` | Cria o app Express, liga `cors` e `express.json`, **serve a pasta `frontend/` como arquivos estáticos**, registra os routers sob `/api` e sobe o servidor na porta do `.env`. | `npm run dev` / `npm start`. |
 | `backend/src/routes/health.routes.js` | Duas rotas de diagnóstico: `/api/health` (API viva) e `/api/health/db` (banco responde). | `server.js`, via `app.use('/api', ...)`. |
 | `backend/src/routes/aluno.routes.js` | Liga os cinco caminhos de `/api/alunos` (RF01) às funções do controller. | `server.js`. |
 | `backend/src/controllers/aluno.controller.js` | CRUD de alunos (RF01): grava em `usuario` + `aluno` numa transação, faz o hash da senha e exclui de forma lógica. | `aluno.routes.js`. |
@@ -30,8 +30,10 @@ e ainda vazias. O escopo é o MVP definido na Seção 4 do TCC: RF01 a RF08.
 
 ## Como as peças se conectam
 
-O usuário abre `frontend/index.html` no navegador. Não há servidor de frontend nem
-build: o HTML carrega o CSS e o `main.js` direto do disco. Ao clicar no botão, o
+O usuário abre `http://localhost:3000/` no navegador. O próprio backend entrega o
+HTML: `express.static` serve a pasta `frontend/` inteira, então qualquer arquivo
+dentro dela responde por HTTP sem precisar de rota escrita à mão. Não há build —
+o HTML carrega o CSS e o `main.js` como arquivos comuns. Ao clicar no botão, o
 `main.js` dispara um `fetch` para `http://localhost:3000/api/health/db`.
 
 Do outro lado, `server.js` já está rodando. Ele passa a requisição por dois
@@ -79,6 +81,14 @@ nativo na instalação — daí o campo `allowScripts` no `package.json`.
 
 **`arquivo` guarda caminho, não o binário.** Áudio em coluna de banco incha o dump
 e deixa o backup lento. O arquivo vai para o disco, o banco guarda onde ele está.
+
+**Frontend servido pelo próprio backend, via `express.static`.** Antes, a tela era
+aberta direto do disco (`file://...`) enquanto a API rodava em `localhost:3000` —
+dois endereços diferentes para a mesma aplicação, e `localhost:3000` sozinho
+respondia "Cannot GET /". Servindo os dois do mesmo processo, um endereço só abre
+o sistema inteiro. O `cors()` continua no código: ele segue necessário para o dia
+em que o frontend for aberto de outro endereço (por exemplo, publicado num
+serviço separado do backend).
 
 ## O que cada requisito vai encostar
 

@@ -294,7 +294,7 @@ Dizer isso antes de a banca perguntar é mais forte do que ser pego por elas.
 | **O e-mail fica reservado após a exclusão.** Um aluno excluído continua ocupando o e-mail, e não é possível recadastrá-lo com o mesmo endereço. | A linha permanece no banco (exclusão lógica), então a restrição `UNIQUE` continua valendo. O sistema pelo menos explica o motivo na mensagem de erro. A solução completa seria uma função de reativar cadastro — registrada como melhoria futura. |
 | **Não há testes automatizados.** | A verificação é manual, por `curl` e pelo navegador. Com duas pessoas e tempo reduzido, o esforço foi para funcionalidade. É a primeira dívida técnica a citar se perguntarem o que fariam com mais tempo. |
 | **As rotas estão abertas.** | RF06 entra depois e protege todas de uma vez. |
-| **A URL da API está fixa no código** (`http://localhost:3000/api`), em cada arquivo JS do frontend. | O sistema roda em ambiente de desenvolvimento. Publicar exigiria centralizar essa configuração. |
+| **A URL da API está escrita por extenso no código** (`http://localhost:3000/api`), em cada arquivo JS do frontend, em vez de um caminho relativo (`/api`). | Desde que o backend passou a servir o frontend (via `express.static`), tela e API vivem no mesmo endereço, então isso já funciona sem problema. Publicar em produção, com outro domínio, ainda exigiria trocar essas URLs — um caminho relativo evitaria o problema de vez. |
 | **Não há paginação nas listagens.** | Uma escola de música tem dezenas ou centenas de alunos, não milhões. |
 | **Não há registro de quem fez cada alteração** (log de auditoria). | Fora do escopo do MVP. |
 

@@ -70,11 +70,10 @@ se retornar o horario do banco, a conexao com o PostgreSQL esta funcionando.
 
 ### 2. Frontend
 
-Nao precisa de instalacao. Basta abrir o arquivo `frontend/index.html` no
-navegador (ou usar a extensao "Live Server" do VS Code, botao direito no
-arquivo -> "Open with Live Server").
+Nao precisa de instalacao nem de passo separado. O backend serve as telas
+junto: com `npm run dev` rodando, abra `http://localhost:3000/` no navegador.
 
-Com o backend rodando, clique no botao "Testar conexao com a API" na pagina -
+Clique no botao "Testar conexao com a API" na pagina -
 se aparecer o horario do banco em verde, o ambiente inteiro (frontend +
 backend + banco) esta funcionando de ponta a ponta.
 
