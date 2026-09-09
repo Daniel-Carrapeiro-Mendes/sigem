@@ -6,6 +6,14 @@
 // O numero de versao nunca e escrito aqui: ele vem sempre do backend, que le
 // do package.json. Assim ele existe em um lugar so - e nunca fica
 // desatualizado num arquivo que alguem esqueceu de mexer.
+//
+// Tudo dentro de uma IIFE (funcao que roda sozinha, ao ser definida) porque
+// este script e incluido em toda tela, ao lado de main.js, alunos.js e, mais
+// tarde, professores.js - e cada um deles ja declara sua propria constante
+// API_URL. Sem a IIFE, "const API_URL" aqui colidiria com a deles: scripts
+// soltos (sem type="module") compartilham um unico espaco de nomes global, e
+// duas declaracoes de const com o mesmo nome quebram a pagina inteira.
+(function () {
 
 const API_URL = 'http://localhost:3000/api';
 
@@ -128,3 +136,5 @@ async function iniciarRodape() {
 }
 
 iniciarRodape();
+
+})();

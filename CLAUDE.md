@@ -96,6 +96,15 @@ Pontos que só se percebem lendo vários arquivos juntos:
 - **`frontend/css/style.css` é compartilhado por todas as telas** pelo mesmo
   motivo. Classes genéricas (`.cartao`, `.campo`, `.tabela-wrapper`, `.mensagem`)
   vivem lá; evite estilo solto dentro do HTML de uma tela.
+- **Scripts do frontend não usam `type="module"`, então compartilham um único
+  espaço de nomes global entre si.** Cada tela declara sua própria
+  `const API_URL` (`main.js`, `alunos.js`, e cada novo `<nome>.js` que nascer),
+  e isso é seguro só porque cada uma dessas telas nunca inclui duas delas juntas.
+  `frontend/js/rodape.js`, que **é** incluído em toda tela, por isso embrulha
+  tudo numa IIFE (`(function () { ... })();`) — sem isso, declarar `API_URL` de
+  novo colide com a da tela e quebra a página inteira (`SyntaxError`, silencioso,
+  nada aparece). Qualquer script novo que for incluído em mais de uma tela
+  precisa da mesma proteção.
 - **`bcrypt` e `jsonwebtoken` já estão instalados mas não são usados em lugar
   nenhum ainda.** Autenticação é trabalho futuro: `usuario.senha_hash` guarda o
   hash do bcrypt e `JWT_SECRET` está no `.env` esperando uso.
